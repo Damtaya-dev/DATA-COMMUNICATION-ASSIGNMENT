@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Data Communication – My Learning Journey</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --card: #1a1a26;
+      --accent: #00e5ff;
+      --accent2: #ff4f7b;
+      --accent3: #b8ff57;
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --border: rgba(0,229,255,0.15);
+      --glow: 0 0 30px rgba(0,229,255,0.25);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.5;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 999;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      height: 64px;
+    }
+
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 1rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.25rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.9rem;
+      border-radius: 4px;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+      background: rgba(0,229,255,0.08);
+    }
+
+    .nav-ext a {
+      color: var(--accent2);
+      border: 1px solid rgba(255,79,123,0.3);
+    }
+
+    .nav-ext a:hover {
+      background: rgba(255,79,123,0.08);
+      color: var(--accent2);
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      min-height: 100vh;
+      padding: 7rem 2.5rem 5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    h1, h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      line-height: 1.05;
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.15;
+      margin-bottom: 2rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #b0b0c8;
+    }
+
+    /* ── HERO ── */
+    #home {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 0;
+    }
+
+    .hero-orb {
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,229,255,0.12) 0%, transparent 70%);
+      top: -100px; right: -100px;
+      border-radius: 50%;
+      z-index: 0;
+      animation: pulse 6s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .hero-tag {
+      display: inline-block;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.3);
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.12em;
+    }
+
+    .hero-name {
+      color: var(--accent);
+      display: block;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-top: 1.2rem;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .btn {
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.7rem 1.6rem;
+      border-radius: 6px;
+      transition: all 0.25s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #fff;
+      box-shadow: var(--glow);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .about-img-wrap {
+      position: relative;
+    }
+
+    .about-img-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      opacity: 0.35;
+      transform: rotate(2deg);
+    }
+
+    .about-img-wrap img {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+      filter: grayscale(20%) contrast(1.05);
+    }
+
+    .about-placeholder {
+      width: 100%;
+      aspect-ratio: 4/5;
+      border-radius: 10px;
+      background: var(--card);
+      border: 2px dashed var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    .about-placeholder svg {
+      opacity: 0.3;
+    }
+
+    .bio-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--accent3);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 100px;
+    }
+
+    /* ── LEARNED ── */
+    #learned {
+      max-width: 1100px;
+    }
+
+    .learned-intro {
+      max-width: 680px;
+      margin-bottom: 3.5rem;
+    }
+
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .topic-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    .topic-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    .topic-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: rgba(0,229,255,0.12);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .topic-card p {
+      font-size: 0.92rem;
+      margin-top: 0.5rem;
+    }
+
+    /* ── TELEGRAPH DIAGRAM ── */
+    .telegraph-section {
+      margin: 3rem 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+    }
+
+    .telegraph-section h3 {
+      color: var(--accent3);
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .telegraph-svg-wrap {
+      overflow-x: auto;
+    }
+
+    /* ── MORSE DEMO ── */
+    .morse-demo {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .morse-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .morse-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--accent3);
+    }
+
+    /* ── OSI TABLE ── */
+    .osi-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .osi-table th {
+      background: var(--surface);
+      color: var(--accent);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      padding: 0.9rem 1.2rem;
+      text-align: left;
+      text-transform: uppercase;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .osi-table td {
+      padding: 0.8rem 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: #b0b0c8;
+      vertical-align: top;
+    }
+
+    .osi-table tr:hover td {
+      background: rgba(0,229,255,0.03);
+    }
+
+    .layer-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    /* ── VIDEO SECTION ── */
+    #resources {
+      max-width: 1100px;
+    }
+
+    .video-wrap {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-top: 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .video-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .resources-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .resource-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-decoration: none;
+      display: block;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .resource-card:hover {
+      border-color: var(--accent2);
+      transform: translateY(-3px);
+    }
+
+    .resource-card .rc-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--accent2);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 0.5rem;
+    }
+
+    .resource-card .rc-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .resource-card .rc-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+      line-height: 1.6;
+    }
+
+    /* ── INSPIRATION ── */
+    #inspiration {
+      text-align: center;
+    }
+
+    .inspiration-inner {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .insp-quote {
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.6;
+      position: relative;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .insp-quote::before, .insp-quote::after {
+      content: '"';
+      font-family: 'Space Mono', monospace;
+      font-size: 5rem;
+      color: var(--accent);
+      opacity: 0.2;
+      position: absolute;
+      line-height: 1;
+    }
+
+    .insp-quote::before { top: 0; left: 0; }
+    .insp-quote::after { content: '"'; bottom: -1.5rem; right: 0; }
+
+    .insp-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+
+    .insp-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+    }
+
+    .insp-icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .insp-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent3);
+      margin-bottom: 0.4rem;
+    }
+
+    .insp-card p {
+      font-size: 0.82rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      #about { grid-template-columns: 1fr; }
+      .resources-grid { grid-template-columns: 1fr; }
+      .insp-cards { grid-template-columns: 1fr; }
+      nav { padding: 0 1.2rem; }
+      .nav-links { display: none; }
+      section { padding: 6rem 1.2rem 4rem; }
+    }
+
+    /* ── FADE IN ANIMATION ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="#home">[ DATA_COMM ]</a>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#learned">What I've Learned</a></li>
+    <li><a href="#resources">Resources</a></li>
+    <li><a href="#inspiration">Inspiration</a></li>
+    <li class="nav-ext"><a href="https://www.youtube.com/watch?v=3QhU9jd03a0" target="_blank">▶ Watch</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<section id="home">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-content">
+    <span class="hero-tag">📡 Data Communication </span>
+    <h1>
+      My Journey Through<br/>
+      <span class="hero-name">Data Communication</span>
+    </h1>
+    <p class="hero-sub">
+      From the dots and dashes of Morse code to satellite orbits and OSI layers —
+      a student's exploration of how information travels across the world.
+    </p>
+    <div class="hero-cta">
+      <a href="#learned" class="btn btn-primary">Explore My Notes</a>
+      <a href="#about" class="btn btn-outline">About Me</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ABOUT ══════════ -->
+<section id="about">
+  <div class="about-img-wrap">
+    <div class="about-placeholder">
+     <img src="IMG-20260520-WA0004.jpg" alt="profile image">
+    </div>
+  </div>
+  <div class="about-text fade-up">
+    <p class="section-label">01 — About</p>
+    <h2>Hello, I'm<br/><span style="color:var(--accent)">AMINA OUMAR DAMTAYA</span></h2>
+    <p><strong style="color:var(--text)">Student ID:</strong> <span style="font-family:'Space Mono',monospace; color:var(--accent3)">PUIS/24210005</span></p>
+    <p style="margin-top:1rem;">
+      I'm a Software engineering student passionate about understanding how the world communicates. 
+      This course opened my eyes to the invisible infrastructure that carries every text, 
+      call, and click — from the first telegraph wire to today's fiber-optic networks and 
+      orbiting satellites.
+    </p>
+    <p style="margin-top:0.75rem;">
+      Outside of class I enjoy exploring networking labs, building small hardware 
+      projects, and watching how connectivity shapes our society.
+    </p>
+    <div class="bio-chips">
+      <span class="chip">Networking</span>
+      <span class="chip">Data Comm</span>
+      <span class="chip">OSI Layers</span>
+      <span class="chip">Satellites</span>
+      <span class="chip">Morse Code</span>
+      <span class="chip">Tech Enthusiast</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ WHAT I'VE LEARNED ══════════ -->
+<section id="learned" style="max-width:1100px; margin:0 auto; min-height:auto; padding-top:7rem;">
+  <div class="learned-intro fade-up">
+    <p class="section-label">02 — What I've Learned About Data Communication</p>
+    <h2>Five Topics That Changed<br/>How I See the World</h2>
+    <p>
+      Data communication is everywhere. These five areas shaped my understanding of 
+      how information moves, from the physical signal to the software protocol.
+    </p>
+  </div>
+
+  <div class="topics-grid">
+
+    <!-- Card 1 -->
+    <div class="topic-card fade-up">
+      <div class="topic-number">01</div>
+      <h3>Data Communication & Its Components</h3>
+      <p>
+        Data communication is the process of exchanging data between devices through a 
+        transmission medium. The five core components are: the <strong style="color:var(--text)">message</strong> (the information itself), 
+        the <strong style="color:var(--text)">sender</strong> (source device), the <strong style="color:var(--text)">receiver</strong> (destination device), the 
+        <strong style="color:var(--text)">transmission medium</strong> (cable, air, fiber), and the <strong style="color:var(--text)">protocol</strong> (agreed rules governing 
+        communication). Without all five, reliable data exchange breaks down. Protocols 
+        ensure both parties speak the same language — regardless of manufacturer or 
+        operating system.
+      </p>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="topic-card fade-up">
+      <div class="topic-number">02</div>
+      <h3>Morse Code</h3>
+      <p>
+        Invented by Samuel Morse and Alfred Vail in the 1830s, Morse code encodes 
+        text as sequences of short (<strong style="color:var(--text)">dots</strong>) and long (<strong style="color:var(--text)">dashes</strong>) signals. 
+        It was the first practical digital encoding system, transmitting messages 
+        over telegraph wires at speeds impossible for a horse or ship. Every letter 
+        and numeral has a unique pattern — "SOS" (· · · — — — · · ·) became the 
+        universal distress call. Morse code proved that a binary-like system could 
+        carry rich information over simple electrical pulses — a concept that underpins 
+        modern digital communication.
+      </p>
+      <div class="morse-demo">
+        <p style="font-size:0.78rem; color:var(--muted); font-family:'Space Mono',monospace;">Sample: A–Z Morse</p>
+        <div class="morse-row">
+          <span class="morse-item">A · —</span>
+          <span class="morse-item">B — · · ·</span>
+          <span class="morse-item">C — · — ·</span>
+          <span class="morse-item">D — · ·</span>
+          <span class="morse-item">E ·</span>
+          <span class="morse-item">S · · ·</span>
+          <span class="morse-item">O — — —</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="topic-card fade-up">
+      <div class="topic-number">03</div>
+      <h3>Satellites</h3>
+      <p>
+        Communication satellites relay signals between ground stations, enabling 
+        telephone calls, internet access, GPS, weather forecasting, and TV broadcasts 
+        across continents. They orbit at different altitudes: <strong style="color:var(--text)">LEO</strong> (Low Earth Orbit, 
+        ~500–2,000 km) offers low latency used by Starlink; <strong style="color:var(--text)">MEO</strong> (~5,000–20,000 km) 
+        hosts GPS constellations; and <strong style="color:var(--text)">GEO</strong> (Geostationary, ~36,000 km) keeps 
+        satellites fixed over a point — ideal for TV and weather. A satellite receives 
+        an uplink signal, amplifies it, shifts its frequency, and retransmits it as 
+        a downlink, all within milliseconds.
+      </p>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="topic-card fade-up">
+      <div class="topic-number">04</div>
+      <h3>Networking & Layers</h3>
+      <p>
+        Computer networks are organized in <strong style="color:var(--text)">layers</strong> to separate concerns and allow 
+        interoperability. Each layer provides services to the one above it and uses 
+        services from the one below it. This layered approach means a change in the 
+        physical medium (say, switching from copper to fiber) doesn't require 
+        rewriting application software. Networks can be classified by size — 
+        <strong style="color:var(--text)">PAN, LAN, MAN, WAN</strong> — and by topology: bus, star, ring, mesh. 
+        Protocols like TCP/IP govern how packets are addressed, routed, and delivered 
+        reliably across diverse network types.
+      </p>
+    </div>
+
+    <!-- Card 5 – OSI (full width) -->
+    <div class="topic-card fade-up" style="grid-column: 1 / -1;">
+      <div class="topic-number">05</div>
+      <h3>The OSI Model</h3>
+      <p>
+        The <strong style="color:var(--text)">Open Systems Interconnection (OSI)</strong> model, developed by ISO in 1984, 
+        provides a universal framework describing how different network systems 
+        communicate. Its seven layers each handle a specific aspect of data transmission:
+      </p>
+      <table class="osi-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Layer</th>
+            <th>Function</th>
+            <th>Example Protocols / Devices</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="layer-badge" style="background:rgba(184,255,87,0.15);color:#b8ff57">7</span></td>
+            <td><strong style="color:var(--text)">Application</strong></td>
+            <td>User-facing network services</td>
+            <td>HTTP, FTP, DNS, SMTP</td>
+          </tr>
+          <tr>
+            <td><span class="layer-badge" style="background:rgba(0,229,255,0.12);color:var(--accent)">6</span></td>
+            <td><strong style="color:var(--text)">Presentation</strong></td>
+            <td>Data translation, encryption, compression</td>
+            <td>SSL/TLS, JPEG, ASCII</td>
+          </tr>
+          <tr>
+            <td><span class="layer-badge" style="background:rgba(255,79,123,0.12);color:var(--accent2)">5</span></td>
+            <td><strong style="color:var(--text)">Session</strong></td>
+            <td>Establishes, manages, terminates sessions</td>
+            <td>NetBIOS, RPC</td>
+          </tr>
+          <tr>
+            <td><span class="layer-badge" style="background:rgba(184,255,87,0.15);color:#b8ff57">4</span></td>
+            <td><strong style="color:var(--text)">Transport</strong></td>
+            <td>End-to-end delivery, error recovery</td>
+            <td>TCP, UDP</td>
+          </tr>
+          <tr>
+            <td><span class="layer-badge" style="background:rgba(0,229,255,0.12);color:var(--accent)">3</span></td>
+            <td><strong style="color:var(--text)">Network</strong></td>
+            <td>Logical addressing and routing</td>
+            <td>IP, ICMP, Routers</td>
+          </tr>
+          <tr>
+            <td><span class="layer-badge" style="background:rgba(255,79,123,0.12);color:var(--accent2)">2</span></td>
+            <td><strong style="color:var(--text)">Data Link</strong></td>
+            <td>MAC addressing, framing, error detection</td>
+            <td>Ethernet, Wi-Fi, Switches</td>
+          </tr>
+          <tr>
+            <td><span class="layer-badge" style="background:rgba(184,255,87,0.15);color:#b8ff57">1</span></td>
+            <td><strong style="color:var(--text)">Physical</strong></td>
+            <td>Raw bit transmission over medium</td>
+            <td>Cables, Hubs, Radio waves</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /topics-grid -->
+
+  <!-- Telegraph Diagram -->
+  <div class="telegraph-section fade-up" style="margin-top:3rem;">
+    <h3>📟 Diagram: How a Telegraph Works</h3>
+    <div class="telegraph-svg-wrap">
+      <svg viewBox="0 0 820 220" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Space Mono, monospace">
+        <!-- Background -->
+        <rect width="820" height="220" fill="#12121a" rx="10"/>
+
+        <!-- Power Source (Battery) -->
+        <rect x="30" y="80" width="60" height="80" rx="6" fill="#1a1a26" stroke="#00e5ff" stroke-width="1.5"/>
+        <line x1="50" y1="100" x2="70" y2="100" stroke="#b8ff57" stroke-width="2"/>
+        <line x1="55" y1="115" x2="65" y2="115" stroke="#b8ff57" stroke-width="1.2"/>
+        <line x1="50" y1="130" x2="70" y2="130" stroke="#b8ff57" stroke-width="2"/>
+        <line x1="55" y1="145" x2="65" y2="145" stroke="#b8ff57" stroke-width="1.2"/>
+        <text x="60" y="175" text-anchor="middle" fill="#7a7a9a" font-size="9">BATTERY</text>
+
+        <!-- Wire from battery to key -->
+        <line x1="90" y1="120" x2="170" y2="120" stroke="#00e5ff" stroke-width="2"/>
+
+        <!-- Telegraph Key -->
+        <rect x="170" y="95" width="80" height="50" rx="6" fill="#1a1a26" stroke="#ff4f7b" stroke-width="1.5"/>
+        <rect x="190" y="108" width="40" height="14" rx="3" fill="#ff4f7b" opacity="0.8"/>
+        <circle cx="210" cy="115" r="5" fill="#fff" opacity="0.9"/>
+        <line x1="195" y1="122" x2="225" y2="122" stroke="#ff4f7b" stroke-width="1.5" stroke-dasharray="3 2"/>
+        <text x="210" y="158" text-anchor="middle" fill="#7a7a9a" font-size="9">KEY / SWITCH</text>
+
+        <!-- Wire to lines/poles -->
+        <line x1="250" y1="120" x2="340" y2="120" stroke="#00e5ff" stroke-width="2"/>
+
+        <!-- Pole 1 -->
+        <rect x="340" y="60" width="10" height="120" rx="3" fill="#3a3a50"/>
+        <rect x="325" y="60" width="40" height="12" rx="2" fill="#3a3a50"/>
+        <circle cx="345" cy="66" r="7" fill="#1a1a26" stroke="#00e5ff" stroke-width="1.5"/>
+        <line x1="345" y1="66" x2="500" y2="66" stroke="#00e5ff" stroke-width="2"/>
+        <text x="345" y="195" text-anchor="middle" fill="#7a7a9a" font-size="9">POLE</text>
+
+        <!-- Pole 2 -->
+        <rect x="495" y="60" width="10" height="120" rx="3" fill="#3a3a50"/>
+        <rect x="480" y="60" width="40" height="12" rx="2" fill="#3a3a50"/>
+        <circle cx="500" cy="66" r="7" fill="#1a1a26" stroke="#00e5ff" stroke-width="1.5"/>
+        <line x1="500" y1="66" x2="600" y2="66" stroke="#00e5ff" stroke-width="2"/>
+        <line x1="500" y1="120" x2="600" y2="120" stroke="#00e5ff" stroke-width="2"/>
+        <text x="500" y="195" text-anchor="middle" fill="#7a7a9a" font-size="9">POLE</text>
+
+        <!-- Sounder / Receiver -->
+        <rect x="600" y="95" width="80" height="50" rx="6" fill="#1a1a26" stroke="#b8ff57" stroke-width="1.5"/>
+        <line x1="615" y1="120" x2="665" y2="120" stroke="#b8ff57" stroke-width="1.5"/>
+        <rect x="625" y="108" width="30" height="12" rx="3" fill="#b8ff57" opacity="0.6"/>
+        <text x="640" y="158" text-anchor="middle" fill="#7a7a9a" font-size="9">SOUNDER</text>
+
+        <!-- Wire from sounder to ground -->
+        <line x1="680" y1="120" x2="760" y2="120" stroke="#00e5ff" stroke-width="2"/>
+        <rect x="740" y="95" width="40" height="50" rx="4" fill="#1a1a26" stroke="#00e5ff" stroke-width="1"/>
+        <text x="760" y="115" text-anchor="middle" fill="#00e5ff" font-size="8">GND</text>
+        <line x1="750" y1="128" x2="770" y2="128" stroke="#00e5ff" stroke-width="2"/>
+        <line x1="754" y1="136" x2="766" y2="136" stroke="#00e5ff" stroke-width="1.5"/>
+        <line x1="758" y1="144" x2="762" y2="144" stroke="#00e5ff" stroke-width="1"/>
+
+        <!-- Morse signal dots/dashes above wire between poles -->
+        <text x="420" y="50" text-anchor="middle" fill="#ff4f7b" font-size="13" font-weight="bold">· — · · —</text>
+        <text x="420" y="36" text-anchor="middle" fill="#7a7a9a" font-size="8">ELECTRICAL PULSES (MORSE)</text>
+
+        <!-- Labels -->
+        <text x="30" y="20" fill="#00e5ff" font-size="11" font-weight="bold">Telegraph System Diagram</text>
+        <text x="30" y="35" fill="#7a7a9a" font-size="9">Operator presses key → electrical pulse travels line → sounder clicks at receiver</text>
+      </svg>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════ RESOURCES ══════════ -->
+<section id="resources">
+  <p class="section-label">03 — Resources</p>
+  <h2 class="fade-up">Watch, Read & Explore</h2>
+
+  <!-- YouTube Video -->
+  <h3 style="margin-bottom:0.5rem; color:var(--accent2);">📺 Recommended Video</h3>
+  <div class="video-wrap fade-up">
+    <iframe
+      src="https://youtube.be/embed/KBKBmX2nxB4"
+      title="Data Communication Introduction"
+      allowfullscreen
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+    </iframe>
+  </div>
+
+  <div class="resources-grid" style="margin-top:2.5rem;">
+
+    <a href="https://docs.google.com/document/d/1-gmMz1rtoe5YaO2gBfDULMIzJJvdCC1f/edit?usp=sharing&ouid=112172976327498225157&rtpof=true&sd=true" target="_blank" class="resource-card">
+      <div class="rc-label">📄 Assignment</div>
+      <div class="rc-title">My Assignment Document</div>
+      <div class="rc-desc">Opens in a new tab. Link to your submitted assignment (replace URL above).</div>
+    </a>
+
+    <a href="https://github.com/Damtaya-dev/DATA-COMM-ASSIGNMENT" target="_blank" class="resource-card">
+      <div class="rc-label">📋 GITHUB REPO</div>
+      <div class="rc-title">GITHUB REPOSITORY </div>
+      <div class="rc-desc">GITHUB REPO</div>
+    </a>
+
+    <a href="https://www.britannica.com/technology/data-transmission" target="_blank" class="resource-card">
+      <div class="rc-label">🌐 Reference</div>
+      <div class="rc-title">Data Transmission – Britannica</div>
+      <div class="rc-desc">Comprehensive encyclopedia article on data transmission technologies and history.</div>
+    </a>
+
+    <a href="https://www.itu.int/en/ITU-T/Pages/default.aspx" target="_blank" class="resource-card">
+      <div class="rc-label">🌐 Reference</div>
+      <div class="rc-title">ITU Telecommunications Standards</div>
+      <div class="rc-desc">International body that defines global telecom and data communication standards.</div>
+    </a>
+
+  </div>
+</section>
+
+<!-- ══════════ INSPIRATION ══════════ -->
+<section id="inspiration">
+  <div class="inspiration-inner">
+    <p class="section-label">04 — What Inspires Me</p>
+    <h2 class="fade-up">Why I Love This Field</h2>
+    <div class="insp-quote fade-up">
+      The internet is the world's largest experiment in anarchy — and it works.
+    </div>
+    <p class="fade-up">
+      What inspires me most about data communication is how it democratizes knowledge. 
+      A signal that can circle the globe in milliseconds carries everything — a doctor's 
+      diagnosis, a student's research, a family's reunion over video call. The invisible 
+      architecture of protocols, satellites, and cables is one of humanity's greatest 
+      collective achievements.
+    </p>
+    <div class="insp-cards">
+      <div class="insp-card fade-up">
+        <div class="insp-icon">🌍</div>
+        <h4>Global Connection</h4>
+        <p>The idea that my message can reach anyone, anywhere, instantly amazes me every day.</p>
+      </div>
+      <div class="insp-card fade-up">
+        <div class="insp-icon">🔬</div>
+        <h4>Continuous Innovation</h4>
+        <p>From copper wire to 5G, the field never stops evolving. There's always something new to learn.</p>
+      </div>
+      <div class="insp-card fade-up">
+        <div class="insp-icon">🛰️</div>
+        <h4>Space Technology</h4>
+        <p>Satellites bridging remote communities to the world — technology literally changing lives from orbit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <span>© 2026 — AMINA OUMAR DAMTAYA · Data Communication IA</span>
+  <span style="color:var(--accent)">[ DATACOMM_IA_2026 ]</span>
+</footer>
+
+<script>
+  // Fade-up on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
